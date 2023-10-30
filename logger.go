@@ -10,7 +10,25 @@ import (
 	"time"
 )
 
-var requestedLevel = InfoLevel
+var requestedLevel = func() LogLevel {
+	if levelStr := os.Getenv("LOG_LEVEL"); levelStr != "" {
+		intLevel, err := strconv.Atoi(levelStr)
+		if err != nil {
+			// Handle the error (e.g., invalid input string)
+			fmt.Println("Error:", err)
+			return InfoLevel // Default value in case of an error
+		}
+
+		// Check if the integer level is within the valid range of LogLevel
+		if intLevel < 0 || intLevel > int(DebugLevel) {
+			fmt.Println("Error: Invalid logging level value")
+			return InfoLevel // Default value in case of an invalid level
+		}
+
+		return LogLevel(intLevel)
+	}
+	return InfoLevel // Default value
+}()
 var displayDateTime = false
 var outputDest io.Writer = os.Stderr
 
